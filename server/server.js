@@ -3,7 +3,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/authRoutes");
-
+const resumeRoutes = require("./routes/resumeRoutes");
 dotenv.config();
 
 // Connect Database
@@ -17,6 +17,7 @@ app.use(express.json());
 
 // Authentication Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/resume", resumeRoutes);
 
 // Test Route
 app.get("/", (req, res) => {
