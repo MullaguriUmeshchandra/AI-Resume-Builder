@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import API from "../api/axios";
 
 function MyResumes() {
   const [resumes, setResumes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchResumes();
@@ -12,20 +16,53 @@ function MyResumes() {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await axios.get(
-        "http://localhost:5000/api/resume",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await API.get("/resume", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      setResumes(res.data.resumes);
-    } catch (error) {
-      console.error(error);
+      setResumes(res.data);
+    } catch (err) {
+      console.error(err);
+      alert("Failed to fetch resumes");
+    } finally {
+      setLoading(false);
     }
   };
+
+  const deleteResume = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this resume?"
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      const token = localStorage.getItem("token");
+
+      await API.delete(`/resume/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      alert("✅ Resume Deleted Successfully!");
+
+      fetchResumes();
+    } catch (err) {
+      console.error(err);
+      alert("❌ Failed to delete resume");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex justify-center items-center">
+        <h2 className="text-xl font-semibold">Loading resumes...</h2>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
@@ -33,35 +70,39 @@ function MyResumes() {
 
       {resumes.length === 0 ? (
         <div className="bg-white p-6 rounded-lg shadow">
-          <p className="text-gray-500">
+          <p className="text-gray-600">
             No resumes found. Create your first resume!
           </p>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {resumes.map((resume) => (
-            <div
-              key={resume._id}
-              className="bg-white rounded-xl shadow-lg p-6"
-            >
-              <h2 className="text-xl font-bold">
-                {resume.fullName}
-              </h2>
+        resumes.map((resume) => (
+          <div
+            key={resume._id}
+            className="bg-white shadow-lg rounded-xl p-5 mb-4"
+          >
+            <h2 className="text-xl font-bold">
+              {resume.fullName || "Untitled Resume"}
+            </h2>
 
-              <p className="text-gray-600 mt-2">
-                {resume.email}
-              </p>
+            <p className="text-gray-600">{resume.email}</p>
 
-              <p className="text-gray-600">
-                {resume.phone}
-              </p>
+            <div className="mt-4 flex gap-3">
+              <button
+                onClick={() => navigate(`/resume/edit/${resume._id}`)}
+                className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+              >
+                Edit
+              </button>
 
-              <button className="mt-5 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-                View Resume
+              <button
+                onClick={() => deleteResume(resume._id)}
+                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+              >
+                Delete
               </button>
             </div>
-          ))}
-        </div>
+          </div>
+        ))
       )}
     </div>
   );

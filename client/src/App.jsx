@@ -1,22 +1,25 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import ProtectedRoute from "./components/ProtectedRoute";
-import MyResumes from "./pages/MyResumes";
+
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import ResumeBuilder from "./pages/ResumeBuilder";
+import MyResumes from "./pages/MyResumes";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+
+        {/* Public Routes */}
         <Route path="/" element={<Home />} />
-
         <Route path="/login" element={<Login />} />
-
         <Route path="/register" element={<Register />} />
 
+        {/* Protected Routes */}
         <Route
           path="/dashboard"
           element={
@@ -26,6 +29,7 @@ function App() {
           }
         />
 
+        {/* Create Resume */}
         <Route
           path="/resume-builder"
           element={
@@ -35,14 +39,26 @@ function App() {
           }
         />
 
+        {/* Edit Resume */}
         <Route
-  path="/my-resumes"
-  element={
-    <ProtectedRoute>
-      <MyResumes />
-    </ProtectedRoute>
-  }
-/>
+          path="/resume/edit/:id"
+          element={
+            <ProtectedRoute>
+              <ResumeBuilder />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* My Resumes */}
+        <Route
+          path="/my-resumes"
+          element={
+            <ProtectedRoute>
+              <MyResumes />
+            </ProtectedRoute>
+          }
+        />
+
       </Routes>
     </BrowserRouter>
   );
