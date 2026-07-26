@@ -1,0 +1,20 @@
+const express = require("express");
+const router = express.Router();
+
+const {
+  createResume,
+  getResumes,
+  getResume,
+  updateResume,
+  deleteResume,
+} = require("../controllers/resumeController");
+
+const authMiddleware = require("../middleware/authMiddleware");
+
+router.post("/", authMiddleware, createResume);
+router.get("/", authMiddleware, getResumes);
+router.get("/:id", authMiddleware, getResume);
+router.put("/:id", authMiddleware, updateResume);
+router.delete("/:id", authMiddleware, deleteResume);
+
+module.exports = router;
